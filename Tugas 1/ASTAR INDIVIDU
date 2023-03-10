@@ -1,0 +1,56 @@
+graph = {
+    'A': {'B': 7, 'D': 9, 'C': 4},
+    'B': {'E': 11, 'F': 12},
+    'C': {'D': 5, 'E': 2},
+    'D': {'E': 2},
+    'E': {'F': 6, 'G' : 3},
+    'F': {'G': 1},
+    'G': {}
+}
+
+SLD = {
+    'A': 11,
+    'B': 5,
+    'C': 4,
+    'D': 8,
+    'E': 10,
+    'F': 15,
+    'G': 2,
+}
+
+def astar(graph, start, goal, SLD):
+    frontier = [(start, 0)]
+    explored = set()
+    parent = {start: None}
+    g = {start: 0}
+
+    while frontier:
+        node, cost = frontier.pop(0)
+        explored.add(node)
+
+        if node == goal:
+            path = []
+            while node:
+                path.append(node)
+                node = parent[node]
+            return list(reversed(path)), cost
+
+        for neighbor, neighbor_cost in graph[node].items():
+            if neighbor not in explored:
+                cost2 = g[node] + neighbor_cost
+                if neighbor not in [n[0] for n in frontier]:
+                    frontier.append((neighbor, cost2 + SLD[neighbor]))
+                elif cost2 < g[neighbor]:
+                    frontier.remove((neighbor, g[neighbor] + SLD[neighbor]))
+                    frontier.append((neighbor, cost2 + SLD[neighbor]))
+
+                parent[neighbor] = node
+                g[neighbor] = cost2
+
+    return None
+path, cost = astar(graph, 'A', 'G', SLD)
+if path:
+    print('Jalan terpendek', ' -> '.join(path))
+    print('Cost:', cost)
+else:
+    print('Tidak ada jalan ke', goal)
